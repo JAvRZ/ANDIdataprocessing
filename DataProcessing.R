@@ -66,5 +66,15 @@ for( j in mytestnames){
   # The total score for AVLT 1 to 5 is included in both the SPSS file and in the CSV, so it is selected
   # BADS_Zoo2 led to fatal errors due to ceiling effects coupled with modest sample sizes, so was added to the explicitly deselected variables
   
-
-
+  for( i in selectedvars){ # this procedure is done for each of the selected variables (e.g. AVLTtotal1-5, AVLTdelayed1-5, etc.)
+    myspecificvar <- myvarnames[i]
+    myprettynamespecificvar <- testvarinfo['short.name'][,1][ testvarinfo['spss.name'][,1] == myspecificvar]
+    myIDnamespecificvar <- testvarinfo['testID.name'][,1][ testvarinfo['spss.name'][,1] == myspecificvar]
+    myshortestnamespecificvar <- testvarinfo['shortest.name'][,1][ testvarinfo['spss.name'][,1] == myspecificvar]
+    myIDspecificvar <- testvarinfo['ID'][,1][ testvarinfo['spss.name'][,1] == myspecificvar]
+    print(myspecificvar)
+    
+    mydatasubset <- subset(mydata, select = c(ID, study, eval(parse(text = myspecificvar)), age, agesquared, edu_Ver, Sex))
+    # a subset of the data is selected, with just the variable under investigation, and the demographics
+    mydatasubset <- mydatasubset[!is.na(mydatasubset[[myspecificvar]]),]
+    # all rows with NA's are removed (these can be either in the demographics or the variable)
