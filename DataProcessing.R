@@ -152,3 +152,60 @@ for( j in mytestnames){
     
     
     
+    # This part searches for the best possible model
+    mytempmodel <- mymodel # the model to iterate over is initialized
+    
+    mydisplayformula <- as.character(as.formula(update(mymodel, "~ 1 + .")))[3]
+    if( multilevel){
+      mydisplayformula <- sub(" + (1 | study)", "", mydisplayformula, fixed = TRUE)
+    }
+    
+    initial <- TRUE
+    firstdrop <- TRUE
+    myminAIC <- 0; myoldAIC <- 1 # values for the information criterion are initialized
+    
+    while( myminAIC < myoldAIC){ # while the lowest found information criterium is lower than what we had with the old model...
+      mytemptable <- drop1( mytempmodel, k = 2) # investigate all models with 1 term dropped
+      if( multilevel ){ # if it is a multilevel model
+        myoldAIC <- mytemptable[,2][1] # the old AIC is saved
+        myminAIC <- min(mytemptable[,2], na.rm = T) # the lowest AIC is saved
+        mywhichmin <- which(mytemptable[,2] == myminAIC) # the location of the lowest AIC is saved
+      } else { # if it is not a multilevel model
+        myoldAIC <- mytemptable[,4][1] # the old AIC is saved
+        myminAIC <- min(mytemptable[,4], na.rm = T) # # the lowest AIC is saved
+        mywhichmin <- which(mytemptable[,4] == myminAIC) # the location of the lowest AIC is saved
+        
+      }
+      initial <- FALSE
+      
+      if( myminAIC < myoldAIC ){ # if the lowest AIC is lower than the old AIC
+        mytempmodel <- update( mytempmodel, paste0(". ~ . - ", rownames(mytemptable)[mywhichmin])) # the model is updated,
+        firstdrop <- FALSE
+        #with the term that resulted in the lowest AIC removed from the model
+      }
+      
+      
+    }
+    
+    if( !firstdrop){
+      mydisplayfinalformula <- as.character(as.formula(mytempmodel))[3]
+    } else { mydisplayfinalformula <- mydisplayformula }
+    if( multilevel){
+      mydisplayfinalformula <- sub(" + (1 | study)", "", mydisplayfinalformula, fixed = TRUE)
+      mydisplayfinalformula <- sub("(1 | study)", "", mydisplayfinalformula, fixed = TRUE)
+    }
+    mydisplayfinalformula <- sub("1", "", mydisplayfinalformula, fixed = TRUE)
+    if( mydisplayfinalformula == "") { mydisplayfinalformula <- "None"}
+    
+    
+    
+    finalmodel <- as.formula(mytempmodel)
+    # The final model is saved (perhaps superfluously)
+    
+    if( multilevel){ # if it is multilevel
+      myfinalmodel <- lmer( finalmodel, data = mycleandatasubset)
+      # the final model is fit to the data (slightly redundant, but results in a nice model object)
+    } else { # if it is unilevel
+      myfinalmodel <- lm( finalmodel, data = mycleandatasubset)
+      # the final model is fit to the data (slightly redundant, but results in a nice model object)
+    }
