@@ -245,3 +245,16 @@ for( j in mytestnames){
       mybestpowertransform <- myboxcox$x[which.max(myboxcox$y)]
     }
     
+    # A new transformed version of the variable score is added to the dataframe
+    mycleanerdatasubset[[noquote(paste0("transf.",myIDspecificvar))]] <- mycleanerdatasubset[[myspecificvar]]^mybestpowertransform
+    if( mybestpowertransform < 0 ){ # If the power transformation is negative, this has the by-effect of reversing the order of scores. Here, the order is switched back.
+      mycleanerdatasubset[[noquote(paste0("transf.",myIDspecificvar))]] <- -1*mycleanerdatasubset[[noquote(paste0("transf.",myIDspecificvar))]]
+    }
+    
+    
+    # In this step, scores are standardized (the standardizing values are explicitly defined, as they are also needed for later analyses)
+    mymean.transformedscores <- mean( mycleanerdatasubset[[noquote(paste0("transf.",myIDspecificvar))]])
+    mysd.transformedscores <- sd( mycleanerdatasubset[[noquote(paste0("transf.",myIDspecificvar))]])
+    mycleanerdatasubset[[noquote(paste0("transf.",myIDspecificvar,".standardized"))]] <- ( mycleanerdatasubset[[noquote(paste0("transf.",myIDspecificvar))]] - mymean.transformedscores ) / mysd.transformedscores
+    
+    
