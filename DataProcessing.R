@@ -135,3 +135,20 @@ for( j in mytestnames){
     # as an empty model cannot be fitted.
     if( length( growingmodel ) == 0 ){ growingmodel <- c("1") }
     
+    # The fixed part of the model as understood by the lmer-function or the lm-function is formulated
+    fullmodel <- paste0( myspecificvar, " ~ ", paste0( growingmodel, collapse = " + "))
+    
+    # If there is data from multiple studies available, a random intercept is added to the function
+    if( multilevel ){ fullmodel <- paste0( fullmodel, " + (1 | study)") }
+    
+    if( multilevel){ # multilevel version using lmer
+      mymodel <- lmer( as.formula(fullmodel), data = mycleandatasubset, REML = FALSE)
+      # the full model is fit to the data
+    } else { # single level version using lm
+      mymodel <- lm( as.formula(fullmodel), data = mycleandatasubset)
+      # the full model is fit to the data
+    }
+    
+    
+    
+    
