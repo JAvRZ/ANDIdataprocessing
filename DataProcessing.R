@@ -258,3 +258,24 @@ for( j in mytestnames){
     mycleanerdatasubset[[noquote(paste0("transf.",myIDspecificvar,".standardized"))]] <- ( mycleanerdatasubset[[noquote(paste0("transf.",myIDspecificvar))]] - mymean.transformedscores ) / mysd.transformedscores
     
     
+    
+    # A formula object is constructed with both fixed and random terms of the final model
+    # found earlier with the step function.
+    mybestformula <- as.character(formula(finalmodel))
+    mybestformula <- sub(myspecificvar, paste0("transf.",myIDspecificvar,".standardized"), mybestformula, fixed = TRUE)
+    mybestformula <- as.formula( paste0(mybestformula[2], mybestformula[1], mybestformula[3]))
+    
+    if( multilevel){
+      # The model is fitted to the transformed data to get parameter estimates on this new scale
+      mycleantransffinalmodel <- lmer( mybestformula, data = mycleanerdatasubset)
+    } else {
+      mycleantransffinalmodel <- lm( mybestformula, data = mycleanerdatasubset)
+    }
+    
+    printbestformula <- as.character(myfixedformula)[3]
+    printbestformula <- gsub( "agesquared", "a$^2$", printbestformula)
+    printbestformula <- gsub( "age", "a", printbestformula)
+    printbestformula <- gsub( "Sex", "s", printbestformula)
+    printbestformula <- gsub( "edu_Ver", "e", printbestformula)
+    printbestformula <- gsub( ":", "*", printbestformula)
+    
