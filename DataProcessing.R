@@ -93,3 +93,24 @@ for( j in mytestnames){
       mycleandatasubset <- mydatasubset[-extremeborderoutlierindices,] # a clean version without the observations outside the extreme borders is made
     } else { mycleandatasubset <- mydatasubset }  # if there are no extreme border observations, the clean data is equal to the old data
     
+    
+    # Box-Cox does not allow any zeroes or negative values. This statement checks for that and takes action.
+    if( any(mycleandatasubset[[myspecificvar]] < 0)){
+      anynegatives <- TRUE # saves this check for the metadata
+      anyzero <- TRUE # saves this check for the metadata
+      lowestvalue <- min(mycleandatasubset[[myspecificvar]]) # lowest negative value is found
+      added <- abs(lowestvalue) + 0.001 # the amount added is saved, so it can be added to a patient's score as well in the beta
+      mycleandatasubset[[myspecificvar]] <- mycleandatasubset[[myspecificvar]] + added  # all values are made positive
+      # if the lowest value was -5601, 5601.001 is added to it, so the lowest value is now 0.001
+    } else if (any(mycleandatasubset[[myspecificvar]] == 0)) {
+      anynegatives <- FALSE
+      anyzero <- TRUE
+      added <- 0.001 # the amount added is saved, so it can be added to a patient's score as well in the beta
+      mycleandatasubset[[myspecificvar]] <- mycleandatasubset[[myspecificvar]] + added #all values are made positive
+      # if there is a zero, this is now 0.001 (but what was 7 is now also 7.001)
+    } else {
+      anynegatives <- FALSE # saves for metadata that raw scores were left unchanged
+      anyzero <- FALSE
+      added <- 0
+    }
+ 
