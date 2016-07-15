@@ -308,4 +308,21 @@ for( j in mytestnames){
   }
 }
 
+# All the data that is generated is written to a file
+write.csv(x = mytotaldata, file = paste0("dataset/totaldataset.csv"), row.names = FALSE)
+
+# Because not all columns are of equal importance, a reduced version of the complete data file is also selected and written away
+# This is just the transformed data
+relevantcols <- c("ID", "study", "Sex", "edu_Ver", "age", "agesquared", names(mytotaldata)[grepl(".standardized", names(mytotaldata), fixed = T)])
+mytransformedtotaldata <- mytotaldata[relevantcols]
+write.csv(x = mytransformedtotaldata, file = paste0("dataset/transformedtotaldataset.csv"), row.names = FALSE)
+
+
+mytransformedtotaldata9999asNA <- mytransformedtotaldata
+mytransformedtotaldata9999asNA[is.na(mytransformedtotaldata9999asNA)] <- 9999
+write.csv(x = mytransformedtotaldata9999asNA, file = paste0("dataset/transformedtotaldatasetB.csv"), row.names = FALSE)
+
+# The metadata that can be useful for later patient comparisons is also written away
+write.csv(x = metadataforMMNCandpatient, file = paste0("dataset/metadataforMMNCandpatient.csv"), row.names = FALSE)
+
 
