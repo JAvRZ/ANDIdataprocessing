@@ -78,3 +78,18 @@ for( j in mytestnames){
     # a subset of the data is selected, with just the variable under investigation, and the demographics
     mydatasubset <- mydatasubset[!is.na(mydatasubset[[myspecificvar]]),]
     # all rows with NA's are removed (these can be either in the demographics or the variable)
+    
+    multilevel <- length(unique(mydatasubset$study)) > 1
+    # The object multilevel is a logical, indicating that for the specific variable under investigation, there is more than one study
+    # For example, delayed1-3 might occur in just 1 study, and multilevel obtains the value FALSE
+    # This means that normal unilevel regression models will be fitted instead of multilevel regression models
+    
+    # Extreme borders are retrieved here.
+    upperbound <- testvarinfo['highborder'][,1][testvarinfo['spss.name'][,1]==myspecificvar]
+    lowerbound <- testvarinfo['lowborder'][,1][testvarinfo['spss.name'][,1]==myspecificvar]
+    extremeborderoutlierindices <- c(which(mydatasubset[[myspecificvar]] > upperbound),
+                                     which(mydatasubset[[myspecificvar]] < lowerbound))
+    if( length(extremeborderoutlierindices > 0 )){ # if there are observations outside of the extreme borders
+      mycleandatasubset <- mydatasubset[-extremeborderoutlierindices,] # a clean version without the observations outside the extreme borders is made
+    } else { mycleandatasubset <- mydatasubset }  # if there are no extreme border observations, the clean data is equal to the old data
+    
