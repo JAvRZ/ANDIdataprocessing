@@ -209,3 +209,16 @@ for( j in mytestnames){
       myfinalmodel <- lm( finalmodel, data = mycleandatasubset)
       # the final model is fit to the data (slightly redundant, but results in a nice model object)
     }
+    
+    # The median absolute deviation from the median on the residuals is determined, and multiplied by 3.5
+    residualoutliercutoffmad <- 3.5*mad(resid(myfinalmodel))
+    # the upper and lower bounds for residuals are determined
+    residualoutlierupperbound <- median(resid(myfinalmodel)) + residualoutliercutoffmad
+    residualoutlierlowerbound <- median(resid(myfinalmodel)) - residualoutliercutoffmad
+    # the rows of the residual outlier participants are saved
+    regressionoutlierindices <- which(resid(myfinalmodel) < residualoutlierlowerbound | resid(myfinalmodel) > residualoutlierupperbound)
+    
+    if( length(regressionoutlierindices > 0)) { # if there are residual outlier observations
+      mycleanerdatasubset <- mycleandatasubset[-regressionoutlierindices,] # a cleaner version without the residual outliers observations is made
+    } else { mycleanerdatasubset <- mycleandatasubset } # if there are no residual outliers observations, the cleaner data is equal to the clean data
+    
