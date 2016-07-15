@@ -279,3 +279,11 @@ for( j in mytestnames){
     printbestformula <- gsub( "edu_Ver", "e", printbestformula)
     printbestformula <- gsub( ":", "*", printbestformula)
     
+    # At the first of the variables belonging to a certain test, a mycombineddataframes object is generated
+    if( i == selectedvars[1]){
+      mycombineddataframes <- mycleanerdatasubset
+    } else { # If there are multiple variables, the extra variables are merged with the variables from the earlier instances of the loop
+      mycombineddataframes <- merge( mycombineddataframes,
+                                     mycleanerdatasubset, by = c("ID","Sex","edu_Ver","age", "agesquared", "study"), all = TRUE)
+    }
+    
