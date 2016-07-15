@@ -222,3 +222,26 @@ for( j in mytestnames){
       mycleanerdatasubset <- mycleandatasubset[-regressionoutlierindices,] # a cleaner version without the residual outliers observations is made
     } else { mycleanerdatasubset <- mycleandatasubset } # if there are no residual outliers observations, the cleaner data is equal to the clean data
     
+    # The fixed (non-random) part of the final model is reconstructed
+    myfixedformula <- as.character(formula(finalmodel))
+    if( multilevel){
+      myfixedformula <- sub(" + (1 | study)", "", myfixedformula, fixed = TRUE)
+    }
+    myfixedformula <- as.formula( paste0(myfixedformula[2], myfixedformula[1], myfixedformula[3]))
+    # A model is fitted with just the fixed part, even if the data is multilevel. This model is constructed as it will be used in the Box-Cox transformation
+    myfixedmodel <- lm( myfixedformula, data = mycleanerdatasubset)
+    
+    # The optimal powertransformation is sought using the Box-Cox method
+    if( multilevel){ # If the data is multilevel, a fixed study indicator variable is added (as.factor(study))
+      myboxcox <- with( mycleanerdatasubset, boxcox(  as.formula( paste0(deparse(myfixedformula), " + as.factor(study)")), seq(-5, 12, 1/100), plotit = FALSE))
+    } else {
+      myboxcox <- with( mycleanerdatasubset, boxcox( myfixedmodel, seq(-5, 12, 1/1000), plotit = FALSE))
+    }
+    mybestpowertransform <- myboxcox$x[which.max(myboxcox$y)]
+    
+    # If the window for possible power transformations is too narrow (the estimate hits the upper or lower bound), a wider window is used
+    if( mybestpowertransform == 12 | mybestpowertransform == -5 ){
+      myboxcox <- with( mycleanerdatasubset, boxcox( myfixedmodel, seq(-30, 50, 1/1000), plotit = FALSE))
+      mybestpowertransform <- myboxcox$x[which.max(myboxcox$y)]
+    }
+    
