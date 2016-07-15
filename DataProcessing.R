@@ -113,4 +113,25 @@ for( j in mytestnames){
       anyzero <- FALSE
       added <- 0
     }
- 
+    
+    # This section checks for adequate amounts of data for demographic variables
+    # First, the demographic variables are temporarily split into categories
+    mygendercategories <- factor(mycleandatasubset$Sex, levels = c(0:1))
+    myagecategories <- cut( mycleandatasubset$age + 65 , breaks = c( 0, 55, 75, 120 ), include.lowest = TRUE)
+    myeducategories <- factor( mycleandatasubset$edu_Ver, levels = c(1:7))
+    
+    # Frequencies of the different levels of the variables are tabled
+    mygendertable <- table(mygendercategories)
+    myagetable <- table(myagecategories)
+    myedutable <- table(myeducategories)
+    
+    # A model is initialized to which terms can be added if there is enough data
+    growingmodel <- c()
+    if(min(mygendertable) >= 5){ growingmodel <- c( growingmodel, "Sex" )}
+    if(median(myagetable) >= 5){ growingmodel <- c( growingmodel, "age")}
+    if(median(myedutable) >= 5){ growingmodel <- c( growingmodel, "edu_Ver")}
+    
+    # If there is no data available to estimate any of the demographic effects, an intercept is added explicitly,
+    # as an empty model cannot be fitted.
+    if( length( growingmodel ) == 0 ){ growingmodel <- c("1") }
+    
