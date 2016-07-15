@@ -287,3 +287,14 @@ for( j in mytestnames){
                                      mycleanerdatasubset, by = c("ID","Sex","edu_Ver","age", "agesquared", "study"), all = TRUE)
     }
     
+    ### Metadata for MMNC analyses and patient data analyses
+    formulapart <- paste0( lapply( strsplit(as.character(myfixedformula)[3], " + ", fixed = TRUE), function(x){ paste0( "transf.", myIDspecificvar, ".standardized", ":", x)})[[1]], collapse = " + ")
+    if( grepl( ":1", formulapart, fixed = T) | grepl( "study", formulapart, fixed = T) ){
+      formulapart <- " "
+    }
+    
+    Nfinal = nrow(mycleanerdatasubset)
+    Ninitial = nrow(mydatasubset)
+    metadataforMMNCandpatient <- rbind( metadataforMMNCandpatient, cbind(testvarinfo[testvarinfo['spss.name'][,1] == myspecificvar,], formulapart, added, mybestpowertransform, Nfinal, Ninitial, multilevel, mymean.transformedscores, mysd.transformedscores, printbestformula))
+    
+    
