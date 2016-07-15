@@ -298,3 +298,14 @@ for( j in mytestnames){
     metadataforMMNCandpatient <- rbind( metadataforMMNCandpatient, cbind(testvarinfo[testvarinfo['spss.name'][,1] == myspecificvar,], formulapart, added, mybestpowertransform, Nfinal, Ninitial, multilevel, mymean.transformedscores, mysd.transformedscores, printbestformula))
     
     
+  }
+  
+  if( j == mytestnames[1]){
+    mytotaldata <- mycombineddataframes
+  } else { # If there are multiple variables, the extra variables are merged with the variables from the earlier instances of the loop
+    mytotaldata <- merge( mytotaldata,
+                          mycombineddataframes, by = c("ID","Sex","edu_Ver","age", "agesquared", "study"), all = TRUE)
+  }
+}
+
+
