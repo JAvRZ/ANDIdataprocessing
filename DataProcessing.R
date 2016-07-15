@@ -41,3 +41,30 @@ mytestnames <- unique( testvarinfo$dataset[ testvarinfo$dataset %in% mytestnames
 # Matches 
 
 numberofcontributingstudies <- matrix( NA, length(mytestnames), 2 )
+for( j in mytestnames){
+  print(j)
+  # For each of the different tests (So AVLT, RBMT, etc.)
+  mydata <- as.data.frame(read.spss(paste0(j, "+Demo.sav"), use.value.labels = FALSE)) # select a sav
+  
+  # The corresponding SPSS file is read
+  mytestname <- j
+  # Perhaps a bit superfluous, but this mytestname will thus become AVLT, RBMT, etc.
+  
+  mydata[,-1][ mydata[,-1] == 999] <- NA # all 999s become NA
+  mydata[,-1][ mydata[,-1] == 9999] <- NA # all 9999s become NA
+  mydata$Sex <- mydata$Sexe - 1 # Sexe was a factor with 2 levels, 1 and 2, 1=male, now becomes 0(=male) and 1
+  
+  mydata$age <- mydata$age - 65 # Age is "centered" on 65, so a value of 0 now equals 65, a value of -1 equals 64 and so on
+  mydata$agesquared <- mydata$age * mydata$age # a new variable Age to the power 2 is made by squaring age
+  
+  mydata <- subset(mydata, !is.na(age) & !is.na(Sex) & !is.na(edu_Ver))
+  myvarnames <- colnames(mydata) # saves the names of the columns of the dataset
+  deselectedvars <- c("SRT_MCR", "BADS_RegelWissel_cond1score", "BADS_Zoo2", "RAND_emoprob", "RAND_physicprob", "bourdon.fouten.totaal")
+  selectedvars <- which(myvarnames %in% testvarinfo['spss.name'][,1][testvarinfo['dataset'] == j] & !(myvarnames %in% deselectedvars))
+  # The variables that occur both in the SPSS file and in the prettyvarnames CSV are selected
+  # So because AVLT1, AVLT2 etc are currently not in the CSV, they are not selected.
+  # The total score for AVLT 1 to 5 is included in both the SPSS file and in the CSV, so it is selected
+  # BADS_Zoo2 led to fatal errors due to ceiling effects coupled with modest sample sizes, so was added to the explicitly deselected variables
+  
+
+
